@@ -1,59 +1,99 @@
+/* ═══════════════════════════════════════════════════════
+   MLAND PROPERTIES — Scroll-Controlled Architectural Opening
+   Sticky 3D Container (300vh desktop / 220vh mobile)
+   ═══════════════════════════════════════════════════════ */
+
 .hero {
   position: relative;
   width: 100%;
+  height: 300vh;
+  background-color: var(--color-dark-hero, #211F1D);
 }
 
-.hero__canvas-wrap {
-  position: relative;
+@media (max-width: 768px) {
+  .hero {
+    height: 220vh;
+  }
+}
+
+.hero--reduced-motion {
+  height: 100vh;
+}
+
+/* Full-screen sticky viewport inside the scroll track */
+.hero__sticky {
+  position: sticky;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100vh;
-  background-color: var(--color-dark-hero);
   overflow: hidden;
+  background-color: var(--color-dark-hero, #211F1D);
 }
 
-.hero__canvas-wrap canvas {
+.hero__sticky canvas {
   display: block;
   width: 100%;
   height: 100%;
 }
 
+/* Gentle Ivory dissolve transition overlay into the existing homepage */
 .hero__transition-overlay {
   position: absolute;
   inset: 0;
-  background-color: var(--color-ivory);
+  background-color: var(--color-ivory, #F7F3ED);
   pointer-events: none;
   z-index: 8;
-  transition: opacity 0.05s linear;
+  transition: opacity 0.12s linear;
+  will-change: opacity;
+}
+
+/* Stage Sequence HUD Tracker */
+.hero__hud {
+  position: absolute;
+  bottom: 36px;
+  left: clamp(1.5rem, 3vw, 4rem);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.hero__hud-track {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-ultra, 0.35em);
+  color: rgba(169, 130, 93, 0.85);
+  text-transform: uppercase;
 }
 
 /* Scroll indicator */
 .hero__scroll-indicator {
   position: absolute;
-  bottom: 40px;
+  bottom: 36px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
+  gap: var(--space-2, 0.5rem);
   z-index: 10;
-  animation: heroFadeIn 1s var(--ease-out) 1s both;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
 }
 
 .hero__scroll-text {
   font-family: var(--font-mono);
   font-size: 9px;
-  letter-spacing: var(--tracking-ultra);
+  letter-spacing: var(--tracking-ultra, 0.35em);
   color: rgba(245, 240, 233, 0.5);
   text-transform: uppercase;
 }
 
 .hero__scroll-line {
   width: 1px;
-  height: 40px;
+  height: 36px;
   background: linear-gradient(
     to bottom,
-    rgba(245, 240, 233, 0.4),
+    rgba(169, 130, 93, 0.8),
     transparent
   );
   animation: scrollPulse 2s ease-in-out infinite;
@@ -61,7 +101,7 @@
 
 @keyframes scrollPulse {
   0%, 100% {
-    opacity: 0.4;
+    opacity: 0.35;
     transform: scaleY(0.7);
   }
   50% {
@@ -70,31 +110,52 @@
   }
 }
 
-@keyframes heroFadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-}
-
-/* WebGL Fallback */
+/* WebGL and Reduced Motion Fallback */
 .hero__fallback {
+  position: relative;
   width: 100%;
   height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--color-dark-hero), #2D2A27);
+  overflow: hidden;
+}
+
+.hero__fallback-image {
+  position: absolute;
+  inset: 0;
+  background-image: url('/images/villa-travertine-sunset.jpg');
+  background-size: cover;
+  background-position: center;
+  filter: brightness(0.65) contrast(1.1);
+}
+
+.hero__fallback-scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(33, 31, 29, 0.75) 0%,
+    rgba(33, 31, 29, 0.9) 100%
+  );
 }
 
 .hero__fallback-content {
+  position: relative;
+  z-index: 2;
   text-align: center;
-  max-width: 600px;
-  padding: var(--page-padding);
+  max-width: 680px;
+  padding: var(--page-padding, 2rem);
+}
+
+.hero__fallback-subtitle {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-ultra);
+  color: var(--color-bronze);
+  text-transform: uppercase;
+  margin-bottom: var(--space-4);
 }
 
 .hero__fallback-title {
@@ -104,35 +165,38 @@
   letter-spacing: var(--tracking-wider);
   color: var(--color-light-text);
   margin-bottom: var(--space-6);
-}
-
-.hero__fallback-subtitle {
-  font-family: var(--font-mono);
-  font-size: var(--text-xs);
-  letter-spacing: var(--tracking-ultra);
-  color: var(--color-bronze);
-  text-transform: uppercase;
-  margin-bottom: var(--space-10);
+  line-height: var(--leading-tight);
 }
 
 .hero__fallback-desc {
   font-size: var(--text-lg);
-  color: var(--color-text-secondary);
+  color: rgba(245, 240, 233, 0.85);
   line-height: var(--leading-relaxed);
+  margin-bottom: var(--space-8);
+}
+
+.hero__fallback-cta {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wider);
+  color: var(--color-bronze);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-bronze);
+  padding-bottom: 4px;
+  transition: color var(--duration-fast), border-color var(--duration-fast);
+}
+
+.hero__fallback-cta:hover {
+  color: var(--color-light-text);
+  border-color: var(--color-light-text);
 }
 
 @media (max-width: 768px) {
   .hero__scroll-indicator {
-    bottom: 24px;
+    bottom: 20px;
   }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .hero__scroll-line {
-    animation: none;
-  }
-  .hero__scroll-indicator {
-    animation: none;
-    opacity: 1;
+  .hero__hud {
+    bottom: 20px;
   }
 }

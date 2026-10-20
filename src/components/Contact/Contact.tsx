@@ -113,7 +113,7 @@ export default function Contact() {
               </div>
 
               <div className="contact__detail-block">
-                <span className="contact__detail-val">Karaköy Yard 14, Istanbul</span>
+                <span className="contact__detail-val">Muttom, Aluva, Ernakulam</span>
               </div>
 
               <div className="contact__detail-block">

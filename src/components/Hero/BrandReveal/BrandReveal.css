@@ -1,0 +1,102 @@
+/* ═══════════════════════════════════════════════════════
+   MLAND PROPERTIES — Centered Brand Reveal Overlay
+   ═══════════════════════════════════════════════════════ */
+
+.brand-reveal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center center;
+  pointer-events: none;
+  z-index: 7;
+  width: 90%;
+  max-width: 960px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  will-change: transform, opacity;
+  transition: opacity 0.15s linear;
+}
+
+.brand-reveal__inner {
+  padding: var(--space-8, 2rem) var(--space-6, 1.5rem);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(33, 31, 29, 0.72) 0%,
+    rgba(33, 31, 29, 0.45) 50%,
+    transparent 75%
+  );
+  border-radius: 4px;
+}
+
+.brand-reveal__meta {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: clamp(0.6rem, 0.52rem + 0.25vw, 0.75rem);
+  letter-spacing: var(--tracking-ultra, 0.35em);
+  color: var(--color-bronze, #A9825D);
+  text-transform: uppercase;
+  margin-bottom: var(--space-4, 1rem);
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.brand-reveal__title {
+  font-family: var(--font-heading);
+  font-size: clamp(2.2rem, 1.6rem + 3.8vw, 5.2rem);
+  font-weight: 200;
+  letter-spacing: var(--tracking-wider, 0.15em);
+  color: var(--color-light-text, #F5F0E9);
+  line-height: var(--leading-tight, 1.1);
+  margin: 0 0 var(--space-4, 1rem) 0;
+  text-transform: uppercase;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.65);
+}
+
+.brand-reveal__word {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+.brand-reveal__divider {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3, 0.75rem);
+  width: 100%;
+  max-width: 320px;
+  margin: 0 auto var(--space-4, 1rem) auto;
+}
+
+.brand-reveal__line {
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(169, 130, 93, 0.65),
+    transparent
+  );
+}
+
+.brand-reveal__dot {
+  font-size: 8px;
+  color: var(--color-bronze, #A9825D);
+}
+
+.brand-reveal__tagline {
+  font-family: var(--font-mono);
+  font-size: clamp(0.625rem, 0.55rem + 0.2vw, 0.75rem);
+  letter-spacing: var(--tracking-widest, 0.25em);
+  color: rgba(245, 240, 233, 0.85);
+  text-transform: uppercase;
+  margin: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+@media (max-width: 600px) {
+  .brand-reveal__inner {
+    padding: var(--space-4) var(--space-2);
+  }
+}

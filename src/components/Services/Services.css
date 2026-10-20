@@ -86,7 +86,7 @@
 
 /* ── Card base ── */
 .services__card {
-  background-color: var(--color-white);
+  background-color: var(--color-ivory);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -200,9 +200,19 @@
 
 /* ── Card body ── */
 .services__card-body {
+  display: flex;
+  flex-direction: column;
   padding: var(--space-5) var(--space-5) var(--space-6);
   background-color: var(--color-ivory);
   border-top: 1px solid var(--color-border);
+}
+
+.services__card--standard .services__card-body {
+  flex: 1;
+}
+
+.services__card--hero .services__card-body {
+  flex: none;
 }
 
 .services__card-row {

@@ -6,65 +6,74 @@ interface LoaderProps {
 }
 
 export default function Loader({ onComplete }: LoaderProps) {
-  const loaderRef = useRef<HTMLDivElement>(null);
-  const [isExiting, setIsExiting] = useState(false);
+  const [stage, setStage] = useState<'enter' | 'hold' | 'dissolve' | 'done'>('enter');
+  const hasFinished = useRef(false);
+
+  const finish = () => {
+    if (hasFinished.current) return;
+    hasFinished.current = true;
+    setStage('done');
+    onComplete();
+  };
 
   useEffect(() => {
-    // Wait for fonts to load, then animate out
-    const minDisplayTime = 2000;
-    const maxWaitTime = 5000;
-    const start = Date.now();
+    const prefersReducedMotion = typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
 
-    const proceed = () => {
-      const elapsed = Date.now() - start;
-      const remaining = Math.max(0, minDisplayTime - elapsed);
-      setTimeout(() => {
-        setIsExiting(true);
-        setTimeout(onComplete, 1000);
-      }, remaining);
-    };
-
-    // Wait for document fonts, with fallback timeout
-    if (document.fonts && document.fonts.ready) {
-      Promise.race([
-        document.fonts.ready,
-        new Promise((resolve) => setTimeout(resolve, maxWaitTime))
-      ]).then(proceed);
-    } else {
-      setTimeout(proceed, minDisplayTime);
+    if (prefersReducedMotion) {
+      const fastTimer = setTimeout(finish, 500);
+      return () => clearTimeout(fastTimer);
     }
-  }, [onComplete]);
 
-  // Check reduced motion preference
-  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Sequence timing:
+    // 0ms - 800ms: reveal (scale 98% -> 100%, opacity 0 -> 1)
+    // 800ms - 2000ms: hold fully visible (~1.2s hold)
+    // 2000ms - 2800ms: dissolve overlay gently into building scene underneath
+    // Total duration: 2.8s
+    const holdTimer = setTimeout(() => {
+      setStage('hold');
+    }, 800);
+
+    const dissolveTimer = setTimeout(() => {
+      setStage('dissolve');
+    }, 2000);
+
+    const endTimer = setTimeout(() => {
+      finish();
+    }, 2800);
+
+    // Safety fallback timeout so visitors can never become stuck
+    const fallbackTimer = setTimeout(() => {
+      finish();
+    }, 3600);
+
+    return () => {
+      clearTimeout(holdTimer);
+      clearTimeout(dissolveTimer);
+      clearTimeout(endTimer);
+      clearTimeout(fallbackTimer);
+    };
+  }, []);
+
+  if (stage === 'done') return null;
 
   return (
-    <div
-      ref={loaderRef}
-      className={`loader ${isExiting ? 'loader--exiting' : ''} ${prefersReducedMotion ? 'loader--no-motion' : ''}`}
+    <aside
+      className={`intro-overlay intro-overlay--${stage}`}
       role="status"
-      aria-label="Loading MLAND Properties"
+      aria-live="polite"
+      aria-label="MLAND Properties architectural presentation loading"
     >
-      <div className="loader__content">
-        <h1 className="loader__title">
-          <span className="loader__letter-group">MLAND</span>
-          {' '}
-          <span className="loader__letter-group">PROPERTIES</span>
+      <div className="intro-overlay__center">
+        <h1 className="intro-overlay__brand">
+          <span className="intro-overlay__word">MLAND</span>{' '}
+          <span className="intro-overlay__word">PROPERTIES</span>
         </h1>
-        <div className="loader__spinner" aria-hidden="true">
-          <svg viewBox="0 0 36 36" className="loader__spinner-svg">
-            <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="0.5" opacity="0.2" />
-            <circle cx="18" cy="18" r="16" fill="none" stroke="currentColor" strokeWidth="0.8" strokeDasharray="25 75" className="loader__spinner-arc" />
-          </svg>
-        </div>
-        <p className="loader__subtitle">
-          <span>DESIGN</span>
-          <span className="loader__dot">·</span>
-          <span>ARCHITECTURE</span>
-          <span className="loader__dot">·</span>
-          <span>CONSTRUCTION</span>
+        <p className="intro-overlay__tagline">
+          ARCHITECTURE · CONSTRUCTION · INTERIORS
         </p>
       </div>
-    </div>
+    </aside>
   );
 }

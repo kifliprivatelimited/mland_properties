@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import Lenis from 'lenis';
 import Navigation from './components/Navigation/Navigation';
 import Loader from './components/Loader/Loader';
 import Hero from './components/Hero/Hero';
@@ -16,6 +17,33 @@ function App() {
 
   const handleLoaderComplete = useCallback(() => {
     setIsLoading(false);
+  }, []);
+
+  // Initialize Lenis smooth scroll with 0.9s duration
+  useEffect(() => {
+    const prefersReducedMotion = typeof window !== 'undefined'
+      ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      : false;
+    if (prefersReducedMotion) return;
+
+    const lenis = new Lenis({
+      duration: 0.9,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      touchMultiplier: 1.2,
+    });
+
+    let rafId: number;
+    function raf(time: number) {
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      lenis.destroy();
+    };
   }, []);
 
   useEffect(() => {

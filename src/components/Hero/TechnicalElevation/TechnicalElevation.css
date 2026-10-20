@@ -1,103 +1,171 @@
+/* ═══════════════════════════════════════════════════════
+   MLAND PROPERTIES — Blueprint & Technical Elevation
+   Warm architectural drafting overlay
+   ═══════════════════════════════════════════════════════ */
+
 .tech-elevation {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 5;
+  z-index: 6;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.1s linear;
+  overflow: hidden;
+  padding-top: var(--nav-height, 90px);
+  transition: opacity 0.12s linear;
 }
 
 .tech-elevation__svg {
-  position: absolute;
-  width: 70%;
-  max-width: 900px;
-  height: auto;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  max-height: 100vh;
 }
 
-/* SVG line styles */
+/* Base drafting line styles */
 .tech-line {
   fill: none;
-  stroke: var(--color-bronze);
+  vector-effect: non-scaling-stroke;
+}
+
+.tech-line--border {
+  stroke: rgba(169, 130, 93, 0.45);
   stroke-width: 1;
-  opacity: 0.6;
 }
 
-.tech-line--thin {
-  stroke-width: 0.7;
-  opacity: 0.4;
-}
-
-.tech-line--thinner {
-  stroke-width: 0.4;
-  opacity: 0.25;
-  stroke-dasharray: 4 4;
+.tech-line--grid {
+  stroke: rgba(247, 243, 237, 0.08);
+  stroke-width: 0.6;
+  stroke-dasharray: 4 6;
 }
 
 .tech-line--accent {
-  stroke-width: 1.2;
-  opacity: 0.8;
+  stroke: rgba(169, 130, 93, 0.6);
+  stroke-width: 0.8;
 }
 
-.tech-line--fine {
+.tech-line--thinner {
+  stroke: rgba(247, 243, 237, 0.12);
   stroke-width: 0.5;
-  opacity: 0.3;
 }
 
-.tech-dim {
-  fill: none;
-  stroke: rgba(169, 130, 93, 0.5);
+.tech-line--diagonal {
+  stroke: rgba(169, 130, 93, 0.18);
+  stroke-width: 0.5;
+  stroke-dasharray: 6 8;
+}
+
+.tech-line--arc {
+  stroke: rgba(169, 130, 93, 0.22);
   stroke-width: 0.6;
+  stroke-dasharray: 3 4;
 }
 
-.tech-text {
-  font-family: var(--font-mono);
+.tech-line--arc-outer {
+  stroke: rgba(247, 243, 237, 0.1);
+  stroke-width: 0.5;
+}
+
+/* Dimension lines and ticks */
+.tech-dim {
+  stroke: rgba(169, 130, 93, 0.7);
+  stroke-width: 0.8;
+  vector-effect: non-scaling-stroke;
+}
+
+.tech-dim-tick {
+  stroke: rgba(169, 130, 93, 0.9);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+
+.tech-dim-label {
+  font-family: var(--font-mono, monospace);
   font-size: 10px;
-  fill: rgba(169, 130, 93, 0.6);
-  letter-spacing: 0.15em;
-}
-
-.tech-annotation {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  fill: rgba(169, 130, 93, 0.5);
   letter-spacing: 0.2em;
+  fill: rgba(247, 243, 237, 0.85);
   text-transform: uppercase;
 }
 
-/* Oversized wordmark behind everything */
-.tech-elevation__wordmark {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-family: var(--font-heading);
-  font-size: clamp(4rem, 10vw, 10rem);
-  font-weight: 200;
-  letter-spacing: var(--tracking-wider);
-  color: rgba(245, 240, 233, 0.14);
-  white-space: nowrap;
-  text-transform: uppercase;
-  user-select: none;
-  z-index: -1;
+/* Callout leader lines */
+.tech-leader {
+  fill: none;
+  stroke: rgba(169, 130, 93, 0.65);
+  stroke-width: 0.75;
+  vector-effect: non-scaling-stroke;
 }
 
-.tech-elevation__rule {
-  position: absolute;
-  top: 50%;
-  left: 10%;
-  right: 10%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(169, 130, 93, 0.3) 20%,
-    rgba(169, 130, 93, 0.3) 80%,
-    transparent
-  );
-  z-index: -1;
+.tech-callout-code {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  fill: #A9825D;
+}
+
+.tech-callout-desc {
+  font-family: var(--font-mono, monospace);
+  font-size: 8.5px;
+  letter-spacing: 0.1em;
+  fill: rgba(247, 243, 237, 0.75);
+}
+
+/* Axis & datum texts */
+.tech-axis-text {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 500;
+  fill: #A9825D;
+}
+
+.tech-datum-text {
+  font-family: var(--font-mono, monospace);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  fill: rgba(247, 243, 237, 0.7);
+}
+
+.tech-north-text {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  fill: rgba(247, 243, 237, 0.8);
+}
+
+/* Title block texts */
+.tech-tb-main {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.18em;
+  fill: var(--color-light-text, #F5F0E9);
+}
+
+.tech-tb-sub {
+  font-family: var(--font-mono, monospace);
+  font-size: 8px;
+  letter-spacing: 0.2em;
+  fill: #A9825D;
+}
+
+.tech-tb-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 7.5px;
+  letter-spacing: 0.12em;
+  fill: rgba(247, 243, 237, 0.45);
+}
+
+.tech-tb-val {
+  font-family: var(--font-mono, monospace);
+  font-size: 8.5px;
+  letter-spacing: 0.12em;
+  fill: rgba(247, 243, 237, 0.85);
+}
+
+@media (max-width: 768px) {
+  .tech-elevation__svg {
+    transform: scale(1.1);
+  }
 }

@@ -1,59 +1,36 @@
-import { useRef, useEffect, useState, useCallback, Suspense } from 'react';
+import { useRef, useEffect, useState, useCallback, Suspense, lazy } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { Environment } from '@react-three/drei';
 import * as THREE from 'three';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import BuildingModel, { BUILDING_GROUPS } from './BuildingModel/BuildingModel';
 import TechnicalElevation from './TechnicalElevation/TechnicalElevation';
+import BrandReveal from './BrandReveal/BrandReveal';
 import './Hero.css';
 
-gsap.registerPlugin(ScrollTrigger);
-
-function HeroScene({ buildingRef }: { buildingRef: React.RefObject<THREE.Group | null> }) {
-  return (
-    <>
-      <ambientLight intensity={0.3} />
-      <directionalLight
-        position={[8, 12, 6]}
-        intensity={1.2}
-        castShadow
-        shadow-mapSize-width={1024}
-        shadow-mapSize-height={1024}
-        shadow-camera-far={50}
-        shadow-camera-left={-10}
-        shadow-camera-right={10}
-        shadow-camera-top={10}
-        shadow-camera-bottom={-10}
-      />
-      <directionalLight position={[-5, 8, -4]} intensity={0.4} color="#E8DDD0" />
-      <pointLight position={[0, 2, 5]} intensity={0.3} color="#FFE4C4" />
-
-      {/* Ground plane */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.65, 0]} receiveShadow>
-        <planeGeometry args={[40, 40]} />
-        <meshStandardMaterial color="#3A3632" roughness={0.95} metalness={0.05} />
-      </mesh>
-
-      <Suspense fallback={null}>
-        <BuildingModel groupRef={buildingRef} />
-      </Suspense>
-    </>
-  );
-}
+// Lazy-load Three.js scene behind client-only boundary
+const HeroScene = lazy(() => import('./HeroScene'));
 
 export default function Hero() {
-  const heroRef = useRef<HTMLDivElement>(null);
-  const canvasWrapRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const buildingRef = useRef<THREE.Group>(null);
-  const scrollIndicatorRef = useRef<HTMLDivElement>(null);
-  const [elevationOpacity, setElevationOpacity] = useState(0);
-  const [transitionOpacity, setTransitionOpacity] = useState(0);
-  const [webGLFailed, setWebGLFailed] = useState(false);
-  const timelineRef = useRef<gsap.core.Timeline | null>(null);
+  const progressRef = useRef(0);
+  const pointerRef = useRef({ x: 0, y: 0 });
 
-  // Check WebGL support
+  // Spring physics variables: stiffness 190, damping 30, mass 0.28
+  const springPos = useRef(0);
+  const springVel = useRef(0);
+
+  // Overlay states for 2D UI elements
+  const [elevationOpacity, setElevationOpacity] = useState(0);
+  const [brandOpacity, setBrandOpacity] = useState(0);
+  const [brandScale, setBrandScale] = useState(0.96);
+  const [transitionOpacity, setTransitionOpacity] = useState(0);
+  const [indicatorOpacity, setIndicatorOpacity] = useState(1);
+  const [activeStage, setActiveStage] = useState('01 APPROACH');
+  const [webGLFailed, setWebGLFailed] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // Check client-side and WebGL support
   useEffect(() => {
+    setIsClient(true);
     try {
       const canvas = document.createElement('canvas');
       const gl = canvas.getContext('webgl2') || canvas.getContext('webgl');
@@ -63,132 +40,144 @@ export default function Hero() {
     }
   }, []);
 
-  // Check reduced motion
   const prefersReducedMotion = typeof window !== 'undefined'
     ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
     : false;
 
-  // Store original positions for each building part
-  const originalPositions = useRef<Map<string, THREE.Vector3>>(new Map());
-  const hasStoredPositions = useRef(false);
+  // Track pointer for subtle architectural camera depth
+  useEffect(() => {
+    if (prefersReducedMotion) return;
 
-  const storeOriginalPositions = useCallback(() => {
-    if (!buildingRef.current || hasStoredPositions.current) return;
-    buildingRef.current.traverse((child) => {
-      if (child instanceof THREE.Mesh && child.name) {
-        originalPositions.current.set(child.name, child.position.clone());
-      }
-    });
-    hasStoredPositions.current = true;
-  }, []);
+    const handlePointerMove = (e: MouseEvent) => {
+      const x = (e.clientX / window.innerWidth) * 2 - 1;
+      const y = -(e.clientY / window.innerHeight) * 2 + 1;
+      pointerRef.current = { x, y };
+    };
 
+    window.addEventListener('mousemove', handlePointerMove, { passive: true });
+    return () => window.removeEventListener('mousemove', handlePointerMove);
+  }, [prefersReducedMotion]);
+
+  // Spring-smoothed scroll progress loop
   useEffect(() => {
     if (webGLFailed || prefersReducedMotion) return;
 
-    // Small delay to ensure the building is rendered
-    const initTimeout = setTimeout(() => {
-      storeOriginalPositions();
-      if (!buildingRef.current || !heroRef.current) return;
+    let animId: number;
+    let lastTime = performance.now();
 
-      // Create GSAP ScrollTrigger timeline
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: 'top top',
-          end: '+=4000',
-          pin: true,
-          scrub: 1,
-          onUpdate: (self) => {
-            const progress = self.progress;
-            // Explode animation: 0-0.5
-            // Technical elevation: 0.5-0.85
-            // Exit: 0.85-1.0
-            const explodeProgress = Math.min(progress / 0.5, 1);
-            const elevationProgress = Math.max(0, Math.min((progress - 0.4) / 0.3, 1));
+    // Spring constants: stiffness 190, damping 30, mass 0.28
+    const k = 190;
+    const c = 30;
+    const m = 0.28;
 
-            // Animate building parts
-            if (buildingRef.current) {
-              buildingRef.current.traverse((child) => {
-                if (!(child instanceof THREE.Mesh) || !child.name) return;
-                const orig = originalPositions.current.get(child.name);
-                if (!orig) return;
+    const updateLoop = (now: number) => {
+      const dt = Math.min((now - lastTime) / 1000, 0.05);
+      lastTime = now;
 
-                // Find which group this part belongs to
-                for (const group of Object.values(BUILDING_GROUPS)) {
-                  if (group.names.includes(child.name)) {
-                    const ease = gsap.parseEase('power2.inOut');
-                    const easedProgress = ease(explodeProgress);
-                    child.position.set(
-                      orig.x + group.direction[0] * group.distance * easedProgress,
-                      orig.y + group.direction[1] * group.distance * easedProgress,
-                      orig.z + group.direction[2] * group.distance * easedProgress
-                    );
-                    break;
-                  }
-                }
-              });
-            }
+      const container = containerRef.current;
+      let targetProgress = 0;
 
-            // Technical elevation overlay
-            setElevationOpacity(elevationProgress);
-
-            // Ivory transition overlay as we approach the end of the hero pin
-            const transProgress = Math.max(0, Math.min((progress - 0.86) / 0.14, 1));
-            setTransitionOpacity(transProgress);
-
-            // Wireframe mode as elevation comes in
-            if (buildingRef.current) {
-              buildingRef.current.traverse((child) => {
-                if (child instanceof THREE.Mesh && child.material) {
-                  const mat = child.material as THREE.MeshStandardMaterial;
-                  if (mat.wireframe !== undefined) {
-                    mat.wireframe = elevationProgress > 0.5;
-                    mat.opacity = elevationProgress > 0.5
-                      ? 0.3 + (1 - elevationProgress) * 0.7
-                      : 1;
-                    mat.transparent = true;
-                  }
-                }
-              });
-            }
-          },
-        },
-      });
-
-      // Hide scroll indicator on scroll
-      tl.to(scrollIndicatorRef.current, {
-        opacity: 0,
-        duration: 0.1,
-      }, 0);
-
-      timelineRef.current = tl;
-    }, 500);
-
-    return () => {
-      clearTimeout(initTimeout);
-      if (timelineRef.current) {
-        timelineRef.current.scrollTrigger?.kill();
-        timelineRef.current.kill();
+      if (container) {
+        const rect = container.getBoundingClientRect();
+        const totalScrollable = container.offsetHeight - window.innerHeight;
+        if (totalScrollable > 0) {
+          const scrolled = -rect.top;
+          targetProgress = Math.max(0, Math.min(1, scrolled / totalScrollable));
+        }
       }
-    };
-  }, [webGLFailed, prefersReducedMotion, storeOriginalPositions]);
 
-  // Cleanup ScrollTrigger on unmount
-  useEffect(() => {
-    return () => {
-      ScrollTrigger.getAll().forEach((st) => st.kill());
+      // Spring physics simulation
+      const displacement = springPos.current - targetProgress;
+      const springForce = -k * displacement - c * springVel.current;
+      const acceleration = springForce / m;
+
+      springVel.current += acceleration * dt;
+      springPos.current += springVel.current * dt;
+
+      if (Math.abs(springPos.current - targetProgress) < 0.0001 && Math.abs(springVel.current) < 0.0001) {
+        springPos.current = targetProgress;
+        springVel.current = 0;
+      }
+
+      const p = Math.max(0, Math.min(1, springPos.current));
+      progressRef.current = p;
+
+      // Update 2D overlays based on smoothed progress p:
+      // 1. Blueprint opacity (peaks during 0.65 - 0.79)
+      let elevOp = 0;
+      if (p >= 0.63 && p <= 0.71) {
+        elevOp = (p - 0.63) / 0.08;
+      } else if (p > 0.71 && p <= 0.77) {
+        elevOp = 1;
+      } else if (p > 0.77 && p <= 0.83) {
+        elevOp = 1 - (p - 0.77) / 0.06;
+      }
+      setElevationOpacity(elevOp);
+
+      // 2. Brand Reveal opacity and scale (peaks during 0.82 - 0.91)
+      let bOp = 0;
+      let bScale = 0.96;
+      if (p >= 0.80 && p <= 0.85) {
+        const t = (p - 0.80) / 0.05;
+        bOp = t;
+        bScale = 0.96 + 0.04 * t;
+      } else if (p > 0.85 && p <= 0.89) {
+        bOp = 1;
+        bScale = 1.0;
+      } else if (p > 0.89 && p <= 0.93) {
+        const t = (p - 0.89) / 0.04;
+        bOp = 1 - t;
+        bScale = 1.0 + 0.01 * t;
+      }
+      setBrandOpacity(bOp);
+      setBrandScale(bScale);
+
+      // 3. Gentle Ivory dissolve into existing homepage (0.93 - 1.00)
+      let transOp = 0;
+      if (p >= 0.92) {
+        transOp = Math.min(1, (p - 0.92) / 0.075);
+      }
+      setTransitionOpacity(transOp);
+
+      // 4. Scroll indicator fades out quickly once user begins scrolling
+      setIndicatorOpacity(p < 0.05 ? 1 - p / 0.05 : 0);
+
+      // 5. Stage tracking label
+      if (p < 0.32) {
+        setActiveStage('01 APPROACH');
+      } else if (p < 0.48) {
+        setActiveStage('02 INTERIOR');
+      } else if (p < 0.65) {
+        setActiveStage('03 STRUCTURE');
+      } else if (p < 0.80) {
+        setActiveStage('04 BLUEPRINT');
+      } else if (p < 0.92) {
+        setActiveStage('05 REVEAL');
+      } else {
+        setActiveStage('06 STUDIO');
+      }
+
+      animId = requestAnimationFrame(updateLoop);
     };
-  }, []);
+
+    animId = requestAnimationFrame(updateLoop);
+    return () => cancelAnimationFrame(animId);
+  }, [webGLFailed, prefersReducedMotion]);
 
   return (
-    <section id="hero-section" className="hero" ref={heroRef}>
-      <div className="hero__canvas-wrap" ref={canvasWrapRef}>
-        {!webGLFailed ? (
+    <section
+      id="hero-section"
+      className={`hero ${prefersReducedMotion ? 'hero--reduced-motion' : ''}`}
+      ref={containerRef}
+      aria-label="MLAND Properties Architectural Presentation"
+    >
+      <div className="hero__sticky">
+        {!webGLFailed && isClient && !prefersReducedMotion ? (
           <>
             <Canvas
               camera={{
-                position: [7, 4, 8],
-                fov: 45,
+                position: [6.8, 3.2, 8.5],
+                fov: 42,
                 near: 0.1,
                 far: 100,
               }}
@@ -197,37 +186,68 @@ export default function Hero() {
               gl={{
                 antialias: true,
                 toneMapping: THREE.ACESFilmicToneMapping,
-                toneMappingExposure: 1.1,
+                toneMappingExposure: 1.15,
+                powerPreference: 'high-performance',
               }}
               style={{ background: '#211F1D' }}
             >
-              <HeroScene buildingRef={buildingRef} />
-              <Environment preset="city" environmentIntensity={0.3} />
+              <Suspense fallback={null}>
+                <HeroScene
+                  buildingRef={buildingRef}
+                  progressRef={progressRef}
+                  pointerRef={pointerRef}
+                />
+              </Suspense>
             </Canvas>
+
+            {/* Technical Blueprint drafting overlay */}
             <TechnicalElevation opacity={elevationOpacity} />
+
+            {/* Brand Reveal overlay */}
+            <BrandReveal opacity={brandOpacity} scale={brandScale} />
+
+            {/* Gentle Ivory dissolve overlay into the homepage */}
             <div
               className="hero__transition-overlay"
               style={{ opacity: transitionOpacity }}
               aria-hidden="true"
             />
+
+            {/* Sequence Stage HUD */}
+            <div className="hero__hud" aria-hidden="true">
+              <span className="hero__hud-track">{activeStage}</span>
+            </div>
+
+            {/* Initial Scroll indicator */}
+            <div
+              className="hero__scroll-indicator"
+              style={{ opacity: indicatorOpacity }}
+              aria-hidden="true"
+            >
+              <span className="hero__scroll-text">SCROLL TO ADVANCE</span>
+              <div className="hero__scroll-line" />
+            </div>
           </>
         ) : (
+          /* WebGL or Reduced Motion Fallback */
           <div className="hero__fallback">
+            <div className="hero__fallback-image" />
+            <div className="hero__fallback-scrim" />
             <div className="hero__fallback-content">
-              <h2 className="hero__fallback-title">MLAND PROPERTIES</h2>
-              <p className="hero__fallback-subtitle">DESIGN · ARCHITECTURE · CONSTRUCTION</p>
+              <span className="hero__fallback-subtitle">
+                DESIGN · ARCHITECTURE · CONSTRUCTION
+              </span>
+              <h1 className="hero__fallback-title">MLAND PROPERTIES</h1>
               <p className="hero__fallback-desc">
-                Contemporary architecture, precision construction, and refined interiors — delivered by a single integrated team.
+                Contemporary architecture, precision construction, and refined interiors — delivered
+                by a single integrated team.
               </p>
+              <a href="#studio" className="hero__fallback-cta">
+                ENTER PRACTICE →
+              </a>
             </div>
           </div>
         )}
-
-        {/* Scroll indicator */}
-        <div className="hero__scroll-indicator" ref={scrollIndicatorRef}>
-          <span className="hero__scroll-text">SCROLL TO ENTER</span>
-          <div className="hero__scroll-line" />
-        </div>
       </div>
     </section>
   );
