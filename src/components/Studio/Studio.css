@@ -1,0 +1,291 @@
+.studio {
+  padding: var(--section-padding) 0;
+  background-color: var(--color-ivory);
+}
+
+/* ── Two-column grid ── */
+.studio__grid {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: clamp(2rem, 4vw, 5rem);
+  align-items: center;
+  margin-bottom: var(--space-20);
+}
+
+/* ── Image column ── */
+.studio__image-col {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+/* ── Tilt wrapper — receives perspective transforms from useTilt ── */
+.studio__card-tilt {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  margin: 0 auto;
+  will-change: transform;
+  transform-style: preserve-3d;
+}
+
+/* ── Clip-path + opacity wrapper (Card Frame) ── */
+.studio__image-wrap {
+  position: relative;
+  overflow: hidden;
+  /* Initial state set by GSAP; fallback for no-JS */
+  clip-path: inset(0% 0% 0% 0%);
+  width: 720px;
+  height: 540px;
+  max-width: 100%;
+}
+
+.studio__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  will-change: transform;
+  /* Image is slightly oversized (via GSAP scale) for parallax headroom */
+}
+
+/* ── Glass caption panel ── */
+.studio__image-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  max-width: 340px;
+  background: rgba(33, 31, 29, 0.55);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: none;
+  border-left: none;
+  padding: var(--space-5) var(--space-6);
+  /* Elevated depth during 3D tilt */
+  transform: translateZ(40px);
+  z-index: 2;
+}
+
+.studio__caption-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-bronze);
+  display: block;
+  margin-bottom: var(--space-2);
+}
+
+.studio__caption-text {
+  font-size: var(--text-sm);
+  color: rgba(245, 240, 233, 0.85);
+  line-height: var(--leading-relaxed);
+  max-width: 300px;
+}
+
+
+
+/* ── Architectural accent — bronze right-angle ── */
+.studio__accent-svg {
+  position: absolute;
+  bottom: -14px;
+  right: -14px;
+  width: 48px;
+  height: 48px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.studio__accent-path {
+  stroke: var(--color-bronze);
+  stroke-width: 1.5;
+  stroke-linecap: square;
+  fill: none;
+  /* dasharray/dashoffset set by JS */
+}
+
+/* ── Content column ── */
+.studio__content-col {
+  padding-top: 0;
+}
+
+.studio__body {
+  margin-bottom: var(--space-8);
+}
+
+.studio__body p {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-5);
+}
+.studio__body p:last-child {
+  margin-bottom: 0;
+}
+
+.studio__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-bronze);
+  text-transform: uppercase;
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--color-bronze);
+  transition: gap var(--duration-normal) var(--ease-out);
+}
+.studio__link:hover {
+  gap: var(--space-5);
+}
+
+.studio__link-arrow {
+  transition: transform var(--duration-normal) var(--ease-out);
+}
+.studio__link:hover .studio__link-arrow {
+  transform: translateX(4px);
+}
+
+/* ── Statistics bar ── */
+.studio__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+  border-top: var(--border-thin);
+  border-bottom: var(--border-thin);
+  padding: var(--space-10) 0;
+}
+
+.studio__stat {
+  text-align: center;
+  position: relative;
+  padding: 0 var(--space-4);
+}
+.studio__stat::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 40px;
+  background-color: var(--color-bronze);
+  opacity: 0.25;
+}
+.studio__stat:last-child::after {
+  display: none;
+}
+
+.studio__stat-number {
+  display: block;
+  font-family: var(--font-heading);
+  font-size: var(--text-4xl);
+  font-weight: 200;
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-charcoal);
+  line-height: 1;
+  margin-bottom: var(--space-3);
+}
+
+.studio__stat-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+}
+
+/* ── Responsive ── */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .studio__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+  .studio__image-wrap {
+    width: 560px;
+    height: 420px;
+  }
+  .studio__content-col {
+    padding-top: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .studio__grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+  .studio__image-wrap {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 4 / 3;
+  }
+  .studio__content-col {
+    padding-top: 0;
+  }
+  .studio__stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-8) 0;
+  }
+  .studio__stat:nth-child(2)::after {
+    display: none;
+  }
+  .studio__image-caption {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    background: rgba(33, 31, 29, 0.7);
+    backdrop-filter: blur(12px) saturate(1.3);
+    -webkit-backdrop-filter: blur(12px) saturate(1.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: none;
+    border-left: none;
+    border-right: none;
+    padding: var(--space-3) var(--space-4);
+    transform: none;
+  }
+  .studio__caption-text {
+    font-size: var(--text-xs);
+    max-width: 100%;
+    line-height: var(--leading-normal);
+  }
+}
+
+@media (max-width: 480px) {
+  .studio__stats {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6) 0;
+  }
+  .studio__stat-number {
+    font-size: var(--text-3xl);
+  }
+}
+
+/* ── Touch devices — disable hover-dependent effects ── */
+@media (pointer: coarse) {
+  .studio__image-caption {
+    transform: none;
+  }
+}
+
+/* ── Reduced motion — no tilt, no parallax, no clip-path animation ── */
+@media (prefers-reduced-motion: reduce) {
+  .studio__image-wrap {
+    clip-path: inset(0% 0% 0% 0%) !important;
+    opacity: 1 !important;
+  }
+  .studio__image {
+    transform: none !important;
+  }
+  .studio__image-caption {
+    transform: none;
+  }
+  .studio__accent-path {
+    stroke-dashoffset: 0 !important;
+  }
+}

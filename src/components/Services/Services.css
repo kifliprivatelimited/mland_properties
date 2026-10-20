@@ -1,0 +1,307 @@
+.services {
+  padding: var(--section-padding) 0;
+  background-color: var(--color-ivory);
+}
+
+/* ── Header ── */
+.services__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-6);
+  margin-bottom: var(--space-12);
+}
+
+.services__header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: var(--space-2);
+}
+
+.services__circle-indicator {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  transition: border-color var(--duration-normal) var(--ease-out);
+}
+
+.services__circle-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--color-charcoal);
+  opacity: 0.6;
+}
+
+.services__header-right {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+}
+
+.services__intro {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+  max-width: 440px;
+}
+
+/* ═══ Asymmetric grid ═══ */
+.services__grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: var(--space-5);
+}
+
+/* Hero card — spans full left column, both rows */
+.services__card--hero {
+  grid-column: 1;
+  grid-row: 1 / 3;
+  display: flex;
+  flex-direction: column;
+}
+
+.services__card--hero .services__card-media {
+  flex: 1;
+  min-height: 0;
+}
+
+.services__card--hero .services__card-img {
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Standard cards — fill the 2x2 right area */
+.services__card:nth-child(2) { grid-column: 2; grid-row: 1; }
+.services__card:nth-child(3) { grid-column: 3; grid-row: 1; }
+.services__card:nth-child(4) { grid-column: 2; grid-row: 2; }
+.services__card:nth-child(5) { grid-column: 3; grid-row: 2; }
+
+/* ── Card base ── */
+.services__card {
+  background-color: var(--color-white);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  will-change: transform;
+  /* Tilt is applied via JS; the CSS transition is the fallback for non-tilt hover lift */
+  transition:
+    box-shadow 0.5s var(--ease-out);
+}
+
+/* Elevated shadow on hover */
+.services__card--hovered {
+  box-shadow:
+    0 8px 24px rgba(41, 39, 37, 0.08),
+    0 2px 8px rgba(41, 39, 37, 0.04);
+}
+
+/* ── Card media ── */
+.services__card-media {
+  overflow: hidden;
+  position: relative;
+}
+
+.services__card--standard .services__card-media {
+  aspect-ratio: 16 / 10;
+}
+
+.services__card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.9s var(--ease-out);
+}
+
+/* Slow zoom on hover */
+.services__card--hovered .services__card-img {
+  transform: scale(1.06);
+}
+
+/* ── Hover overlay (faint darkening) ── */
+.services__card-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(33, 31, 29, 0);
+  transition: background-color 0.6s var(--ease-out);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.services__card--hovered .services__card-overlay {
+  background-color: rgba(33, 31, 29, 0.12);
+}
+
+/* ═══ Architectural line drawing ═══ */
+.services__line-drawing {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  width: 64px;
+  height: 64px;
+  z-index: 2;
+  opacity: 0;
+  transition: opacity 0.5s var(--ease-out);
+  pointer-events: none;
+}
+
+.services__card--hero .services__line-drawing {
+  width: 80px;
+  height: 80px;
+}
+
+.services__card--hovered .services__line-drawing {
+  opacity: 1;
+}
+
+/* Stroke animation — lines "sketch in" */
+.services__line-path {
+  stroke: rgba(245, 240, 233, 0.7);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  fill: none;
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  transition: stroke-dashoffset 1.2s var(--ease-out);
+}
+
+.services__card--hovered .services__line-path {
+  stroke-dashoffset: 0;
+}
+
+/* ── Bronze bottom accent line ── */
+.services__card-bronze-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 1.5px;
+  width: 0;
+  background: linear-gradient(
+    90deg,
+    var(--color-bronze) 0%,
+    var(--color-bronze-light) 100%
+  );
+  transition: width 0.6s var(--ease-out);
+  z-index: 3;
+}
+
+.services__card--hovered .services__card-bronze-line {
+  width: 100%;
+}
+
+/* ── Card body ── */
+.services__card-body {
+  padding: var(--space-5) var(--space-5) var(--space-6);
+  background-color: var(--color-ivory);
+  border-top: 1px solid var(--color-border);
+}
+
+.services__card-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-2);
+}
+
+.services__card-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-lg);
+  font-weight: 400;
+  color: var(--color-charcoal);
+  letter-spacing: var(--tracking-tight);
+}
+
+.services__card-num {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  letter-spacing: var(--tracking-wide);
+  flex-shrink: 0;
+}
+
+.services__card-desc {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1100px) {
+  .services__header {
+    grid-template-columns: 1fr;
+    gap: var(--space-5);
+  }
+  .services__header-right {
+    justify-content: flex-start;
+  }
+  .services__grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+  }
+  .services__card--hero {
+    grid-column: 1 / -1;
+    grid-row: auto;
+  }
+  .services__card--hero .services__card-media {
+    aspect-ratio: 16 / 9;
+    flex: none;
+  }
+  .services__card:nth-child(2),
+  .services__card:nth-child(3),
+  .services__card:nth-child(4),
+  .services__card:nth-child(5) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .services__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Touch devices: keep hover effects visible without hover ── */
+@media (pointer: coarse) {
+  .services__card-overlay {
+    display: none;
+  }
+  .services__line-drawing {
+    display: none;
+  }
+  .services__card-bronze-line {
+    display: none;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  .services__card {
+    transition: none;
+  }
+  .services__card-img {
+    transition: none;
+  }
+  .services__card-overlay {
+    transition: none;
+  }
+  .services__line-drawing {
+    transition: none;
+  }
+  .services__line-path {
+    transition: none;
+  }
+  .services__card-bronze-line {
+    transition: none;
+  }
+}

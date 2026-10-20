@@ -1,0 +1,103 @@
+.tech-elevation {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.1s linear;
+}
+
+.tech-elevation__svg {
+  position: absolute;
+  width: 70%;
+  max-width: 900px;
+  height: auto;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* SVG line styles */
+.tech-line {
+  fill: none;
+  stroke: var(--color-bronze);
+  stroke-width: 1;
+  opacity: 0.6;
+}
+
+.tech-line--thin {
+  stroke-width: 0.7;
+  opacity: 0.4;
+}
+
+.tech-line--thinner {
+  stroke-width: 0.4;
+  opacity: 0.25;
+  stroke-dasharray: 4 4;
+}
+
+.tech-line--accent {
+  stroke-width: 1.2;
+  opacity: 0.8;
+}
+
+.tech-line--fine {
+  stroke-width: 0.5;
+  opacity: 0.3;
+}
+
+.tech-dim {
+  fill: none;
+  stroke: rgba(169, 130, 93, 0.5);
+  stroke-width: 0.6;
+}
+
+.tech-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  fill: rgba(169, 130, 93, 0.6);
+  letter-spacing: 0.15em;
+}
+
+.tech-annotation {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  fill: rgba(169, 130, 93, 0.5);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+/* Oversized wordmark behind everything */
+.tech-elevation__wordmark {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-heading);
+  font-size: clamp(4rem, 10vw, 10rem);
+  font-weight: 200;
+  letter-spacing: var(--tracking-wider);
+  color: rgba(245, 240, 233, 0.14);
+  white-space: nowrap;
+  text-transform: uppercase;
+  user-select: none;
+  z-index: -1;
+}
+
+.tech-elevation__rule {
+  position: absolute;
+  top: 50%;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(169, 130, 93, 0.3) 20%,
+    rgba(169, 130, 93, 0.3) 80%,
+    transparent
+  );
+  z-index: -1;
+}

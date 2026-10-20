@@ -1,0 +1,156 @@
+.process {
+  padding: var(--section-padding) 0;
+  background-color: var(--color-ivory);
+  border-top: var(--border-thin);
+}
+
+/* ── Header ── */
+.process__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: var(--space-8);
+  margin-bottom: var(--space-14);
+}
+
+.process__header-left {
+  flex: 1;
+  max-width: 520px;
+}
+
+.process__blueprint-wrap {
+  margin-top: var(--space-6);
+  max-width: 380px;
+}
+
+.process__blueprint-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.process__header-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: var(--space-4);
+}
+
+.process__circle-indicator {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+}
+
+.process__circle-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--color-charcoal);
+  opacity: 0.6;
+}
+
+.process__header-right {
+  flex: 1;
+  max-width: 420px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.process__intro {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+}
+
+/* ── 3x2 Matrix Grid (Reference 12) ── */
+.process__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: var(--border-thin);
+  border-left: var(--border-thin);
+  background-color: transparent;
+}
+
+.process__step {
+  padding: var(--space-8) var(--space-6);
+  border-right: var(--border-thin);
+  border-bottom: var(--border-thin);
+  background-color: var(--color-ivory);
+  transition: background-color var(--duration-normal) var(--ease-out);
+  position: relative;
+}
+
+.process__step:hover {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.process__step-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+}
+
+.process__step-num {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-bronze);
+}
+
+.process__step-mark {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--color-border);
+  font-weight: 300;
+  transition: color var(--duration-normal) var(--ease-out);
+}
+
+.process__step:hover .process__step-mark {
+  color: var(--color-bronze);
+}
+
+.process__step-title {
+  font-family: var(--font-heading);
+  font-size: var(--text-2xl);
+  font-weight: 400;
+  color: var(--color-charcoal);
+  margin-bottom: var(--space-3);
+  letter-spacing: var(--tracking-tight);
+}
+
+.process__step-desc {
+  font-size: var(--text-sm);
+  line-height: var(--leading-relaxed);
+  color: var(--color-text-secondary);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1024px) {
+  .process__header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-6);
+  }
+  .process__header-center {
+    display: none;
+  }
+  .process__grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .process__grid {
+    grid-template-columns: 1fr;
+  }
+  .process__step {
+    padding: var(--space-6) var(--space-4);
+  }
+}

@@ -1,0 +1,185 @@
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-height);
+  z-index: var(--z-nav);
+  transition: background-color 0.4s var(--ease-out), border-color 0.4s var(--ease-out);
+  border-bottom: 1px solid transparent;
+}
+
+.nav--dark {
+  color: var(--color-light-text);
+}
+
+.nav--light {
+  color: var(--color-charcoal);
+}
+
+.nav--scrolled.nav--light {
+  background-color: rgba(247, 243, 237, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom-color: var(--color-border);
+}
+
+.nav--scrolled.nav--dark {
+  background-color: rgba(33, 31, 29, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom-color: var(--color-border-dark);
+}
+
+.nav__inner {
+  max-width: var(--page-max-width);
+  margin: 0 auto;
+  height: 100%;
+  padding: 0 var(--page-padding);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav__logo {
+  font-family: var(--font-heading);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: opacity var(--duration-fast) ease;
+}
+.nav__logo:hover {
+  opacity: 0.7;
+}
+
+.nav__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.nav__link {
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: inherit;
+  padding: var(--space-2) 0;
+  position: relative;
+  transition: opacity var(--duration-fast) ease;
+}
+.nav__link::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background-color: currentColor;
+  transition: width var(--duration-normal) var(--ease-out);
+}
+.nav__link:hover::after,
+.nav__link--active::after {
+  width: 100%;
+}
+.nav__link:hover {
+  opacity: 0.8;
+}
+
+.nav__cta {
+  font-family: var(--font-heading);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: inherit;
+  padding: var(--space-3) var(--space-6);
+  border: 1px solid currentColor;
+  transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+.nav--dark .nav__cta:hover {
+  background-color: var(--color-light-text);
+  color: var(--color-dark-hero);
+}
+.nav--light .nav__cta:hover {
+  background-color: var(--color-charcoal);
+  color: var(--color-ivory);
+}
+
+/* Mobile */
+.nav__mobile-toggle {
+  display: none;
+  color: inherit;
+  padding: var(--space-2);
+}
+
+.nav__mobile-menu {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .nav__links,
+  .nav__cta {
+    display: none;
+  }
+  .nav__mobile-toggle {
+    display: flex;
+    align-items: center;
+  }
+  .nav__mobile-menu {
+    display: block;
+    position: fixed;
+    top: var(--nav-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--color-ivory);
+    padding: var(--space-12) var(--page-padding);
+    transform: translateX(100%);
+    transition: transform 0.5s var(--ease-out);
+    z-index: calc(var(--z-nav) - 1);
+  }
+  .nav__mobile-menu--open {
+    transform: translateX(0);
+  }
+  .nav__mobile-link {
+    display: block;
+    width: 100%;
+    text-align: left;
+    font-family: var(--font-heading);
+    font-size: var(--text-xl);
+    font-weight: 300;
+    letter-spacing: var(--tracking-wide);
+    text-transform: uppercase;
+    color: var(--color-charcoal);
+    padding: var(--space-4) 0;
+    border-bottom: var(--border-thin);
+    transition: color var(--duration-fast) ease;
+  }
+  .nav__mobile-link:hover,
+  .nav__mobile-link--active {
+    color: var(--color-bronze);
+  }
+  .nav__mobile-cta {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-family: var(--font-heading);
+    font-size: var(--text-sm);
+    font-weight: 400;
+    letter-spacing: var(--tracking-widest);
+    text-transform: uppercase;
+    color: var(--color-charcoal);
+    padding: var(--space-4);
+    border: 1px solid var(--color-charcoal);
+    margin-top: var(--space-8);
+    transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+  }
+  .nav__mobile-cta:hover {
+    background-color: var(--color-charcoal);
+    color: var(--color-ivory);
+  }
+}
