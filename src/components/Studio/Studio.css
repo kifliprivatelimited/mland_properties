@@ -163,6 +163,7 @@
   text-align: center;
   position: relative;
   padding: 0 var(--space-4);
+  will-change: transform, opacity;
 }
 .studio__stat::after {
   content: '';
@@ -188,6 +189,18 @@
   color: var(--color-charcoal);
   line-height: 1;
   margin-bottom: var(--space-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Thin warm-bronze horizontal line beneath each number ── */
+.studio__stat-line {
+  display: block;
+  width: 40px;
+  height: 1.5px;
+  background-color: var(--color-bronze);
+  margin: 0 auto var(--space-3);
+  transform-origin: left center;
+  will-change: transform;
 }
 
 .studio__stat-label {
@@ -264,6 +277,9 @@
   .studio__stat-number {
     font-size: var(--text-3xl);
   }
+  .studio__stat-line {
+    width: 32px;
+  }
 }
 
 /* ── Touch devices — disable hover-dependent effects ── */
@@ -273,7 +289,7 @@
   }
 }
 
-/* ── Reduced motion — no tilt, no parallax, no clip-path animation ── */
+/* ── Reduced motion — no tilt, no parallax, no clip-path animation, no stat counting ── */
 @media (prefers-reduced-motion: reduce) {
   .studio__image-wrap {
     clip-path: inset(0% 0% 0% 0%) !important;
@@ -287,5 +303,12 @@
   }
   .studio__accent-path {
     stroke-dashoffset: 0 !important;
+  }
+  .studio__stat {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .studio__stat-line {
+    transform: none !important;
   }
 }

@@ -7,11 +7,29 @@ import './Studio.css';
 gsap.registerPlugin(ScrollTrigger);
 
 const STATS = [
-  { number: '08', label: 'Studios & Ateliers' },
-  { number: '31', label: 'Years of Practice' },
-  { number: '1.4M', label: 'Square Metres Delivered' },
-  { number: '98%', label: 'On-Time Handover' },
+  { number: '218', label: 'Projects completed' },
+  { number: '31', label: 'Years of practice' },
+  { number: '1.4M', label: 'm² delivered' },
+  { number: '98%', label: 'Client satisfaction' },
 ];
+
+function parseStatValue(raw: string) {
+  const match = raw.match(/^([^\d.]*)(\d+(?:\.\d+)?)(.*)$/);
+  if (!match) {
+    return { prefix: '', target: 0, decimals: 0, suffix: raw };
+  }
+  const prefix = match[1] || '';
+  const numStr = match[2];
+  const suffix = match[3] || '';
+  const decimals = numStr.includes('.') ? numStr.split('.')[1].length : 0;
+  const target = parseFloat(numStr);
+  return { prefix, target, decimals, suffix };
+}
+
+function formatStatValue(val: number, decimals: number, prefix: string, suffix: string): string {
+  const formattedNum = decimals > 0 ? val.toFixed(decimals) : Math.round(val).toString();
+  return `${prefix}${formattedNum}${suffix}`;
+}
 
 /* ── Studio image card (premium editorial feature) ── */
 function StudioImageCard() {
@@ -145,7 +163,9 @@ function StudioImageCard() {
 
 export default function Studio() {
   const sectionRef = useRef<HTMLElement>(null);
+  const statsRef = useRef<HTMLDivElement>(null);
 
+  // Content column animations
   useEffect(() => {
     if (!sectionRef.current) return;
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -176,6 +196,93 @@ export default function Studio() {
 
     return () => {
       tweens.forEach((t) => t.kill());
+    };
+  }, []);
+
+  // Statistics row: premium staggered reveal, 1.9s cubic count-up & bronze rule sweep
+  useEffect(() => {
+    const statsBar = statsRef.current;
+    if (!statsBar) return;
+
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) return;
+
+    const statElements = statsBar.querySelectorAll<HTMLElement>('.studio__stat');
+    if (!statElements.length) return;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: statsBar,
+        start: 'top 85%',
+        once: true,
+      },
+    });
+
+    statElements.forEach((el, i) => {
+      const numEl = el.querySelector<HTMLElement>('.studio__stat-number');
+      const lineEl = el.querySelector<HTMLElement>('.studio__stat-line');
+      const statData = STATS[i];
+      if (!statData || !numEl) return;
+
+      const { target, decimals, prefix, suffix } = parseStatValue(statData.number);
+      const statDelay = i * 0.08; // 80ms stagger left to right
+
+      // Initial GPU-friendly setup (transform & opacity only)
+      gsap.set(el, { opacity: 0, y: 24 });
+      if (lineEl) {
+        gsap.set(lineEl, { scaleX: 0, transformOrigin: 'left center' });
+      }
+      numEl.textContent = formatStatValue(0, decimals, prefix, suffix);
+
+      // 1. Stat block fade-in and rise ~24px
+      tl.to(
+        el,
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.9,
+          ease: 'power3.out',
+        },
+        statDelay
+      );
+
+      // 2. Number count-up easing from 0 to target over ~1.9s using slow cubic ease-out
+      const counter = { val: 0 };
+      tl.to(
+        counter,
+        {
+          val: target,
+          duration: 1.9,
+          ease: 'power3.out',
+          onUpdate: () => {
+            numEl.textContent = formatStatValue(counter.val, decimals, prefix, suffix);
+          },
+          onComplete: () => {
+            numEl.textContent = statData.number;
+          },
+        },
+        statDelay
+      );
+
+      // 3. Bronze horizontal rule draws left-to-right over ~1.2s, starting ~200ms after stat appears
+      if (lineEl) {
+        tl.to(
+          lineEl,
+          {
+            scaleX: 1,
+            duration: 1.2,
+            ease: 'power2.out',
+          },
+          statDelay + 0.2
+        );
+      }
+    });
+
+    return () => {
+      tl.kill();
+      if (tl.scrollTrigger) {
+        tl.scrollTrigger.kill();
+      }
     };
   }, []);
 
@@ -224,10 +331,11 @@ export default function Studio() {
         </div>
 
         {/* Statistics — standalone bar between Studio and Services */}
-        <div className="studio__stats studio__animate">
+        <div className="studio__stats" ref={statsRef}>
           {STATS.map((stat, i) => (
             <div key={i} className="studio__stat">
               <span className="studio__stat-number">{stat.number}</span>
+              <span className="studio__stat-line" aria-hidden="true" />
               <span className="studio__stat-label">{stat.label}</span>
             </div>
           ))}
