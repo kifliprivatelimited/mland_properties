@@ -1,4 +1,5 @@
 import { useState, useCallback, type FormEvent } from 'react';
+import { supabase } from '../../utils/supabase';
 import './Contact.css';
 
 interface FormData {
@@ -54,28 +55,19 @@ export default function Contact() {
 
     setStatus('submitting');
 
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-    if (supabaseUrl && supabaseAnonKey) {
+    if (supabase) {
       try {
-        const response = await fetch(`${supabaseUrl}/rest/v1/contact_messages`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': supabaseAnonKey,
-            'Authorization': `Bearer ${supabaseAnonKey}`,
-            'Prefer': 'return=minimal',
-          },
-          body: JSON.stringify({
+        const { error } = await supabase
+          .from('contact_messages')
+          .insert({
             name: formData.name.trim(),
             email: formData.email.trim(),
             project_location: formData.location.trim(),
             scope: formData.scope.trim(),
             submitted_at: new Date().toISOString(),
-          }),
-        });
-        if (!response.ok) throw new Error('Submission failed');
+          });
+
+        if (error) throw error;
         setStatus('success');
         setFormData({ name: '', email: '', location: '', scope: '' });
       } catch {
