@@ -1,0 +1,10 @@
+# Enforce LF line endings for XML and text files served as static assets
+*.xml text eol=lf
+*.txt text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.json text eol=lf
+*.md text eol=lf
