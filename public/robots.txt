@@ -1,0 +1,13 @@
+# MLAND Properties - robots.txt
+# Canonical Domain: https://www.mlandproperties.com
+
+User-agent: *
+Allow: /
+
+# Exclude administrative and private endpoints
+Disallow: /admin
+Disallow: /admin/
+Disallow: /api/
+
+# XML Sitemap declaration
+Sitemap: https://www.mlandproperties.com/sitemap.xml
