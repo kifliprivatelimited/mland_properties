@@ -27,6 +27,7 @@ export default function Contact() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [status, setStatus] = useState<SubmitStatus>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const validate = useCallback((): boolean => {
     const newErrors: FormErrors = {};
@@ -54,31 +55,57 @@ export default function Contact() {
     if (!validate()) return;
 
     setStatus('submitting');
+    setErrorMessage('');
 
-    if (supabase) {
-      try {
-        const { error } = await supabase
-          .from('contact_messages')
-          .insert({
-            name: formData.name.trim(),
-            email: formData.email.trim(),
-            project_location: formData.location.trim(),
-            scope: formData.scope.trim(),
-            submitted_at: new Date().toISOString(),
-          });
+    try {
+      const response = await fetch('/api/enquiries', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          location: formData.location.trim(),
+          scope: formData.scope.trim(),
+        }),
+      });
 
-        if (error) throw error;
-        setStatus('success');
-        setFormData({ name: '', email: '', location: '', scope: '' });
-      } catch {
-        setStatus('error');
+      const resData = await response.json();
+
+      if (!response.ok || !resData.success) {
+        const errorText = resData?.errors ? Object.values(resData.errors).join(' ') : (resData?.error || 'Submission failed');
+        throw new Error(errorText);
       }
-    } else {
-      // No Supabase configured — simulate for frontend demo
-      await new Promise((resolve) => setTimeout(resolve, 1200));
-      console.warn('Supabase not configured. Form data logged locally:', formData);
+
       setStatus('success');
       setFormData({ name: '', email: '', location: '', scope: '' });
+    } catch (err: unknown) {
+      console.warn('API submission failed, attempting direct Supabase fallback:', err);
+      // Fallback: If local API endpoint was unavailable, attempt direct Supabase insert if configured
+      if (supabase) {
+        try {
+          const { error } = await supabase
+            .from('contact_messages')
+            .insert({
+              name: formData.name.trim(),
+              email: formData.email.trim(),
+              project_location: formData.location.trim(),
+              scope: formData.scope.trim(),
+              submitted_at: new Date().toISOString(),
+            });
+
+          if (!error) {
+            setStatus('success');
+            setFormData({ name: '', email: '', location: '', scope: '' });
+            return;
+          }
+        } catch {
+          // fallback failed as well
+        }
+      }
+
+      const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again or email us directly.';
+      setErrorMessage(msg);
+      setStatus('error');
     }
   }, [formData, validate]);
 
@@ -197,7 +224,14 @@ export default function Contact() {
 
                 {status === 'error' && (
                   <div className="contact__form-error" role="alert">
-                    Something went wrong. Please try again or email us directly.
+                    <span>{errorMessage || 'Something went wrong. Please try again or email us directly.'}</span>
+                    <button
+                      type="button"
+                      className="contact__retry-btn"
+                      onClick={(e) => handleSubmit(e)}
+                    >
+                      RETRY SUBMISSION
+                    </button>
                   </div>
                 )}
 
