@@ -16,10 +16,6 @@
         {
           "key": "Content-Disposition",
           "value": "inline"
-        },
-        {
-          "key": "X-Robots-Tag",
-          "value": "noindex"
         }
       ]
     },
