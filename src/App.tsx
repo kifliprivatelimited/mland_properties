@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import Lenis from 'lenis';
+import { Analytics } from '@vercel/analytics/react';
 import Navigation from './components/Navigation/Navigation';
 import Loader from './components/Loader/Loader';
 import Hero from './components/Hero/Hero';
@@ -121,44 +122,53 @@ function App({ initialPath, initialLoading }: AppProps) {
     return () => observers.forEach((o) => o.disconnect());
   }, [isLoading, isAdminRoute, isLegalRoute, isNotFound]);
 
+  let pageContent;
+
   // 1. Admin Portal
   if (isAdminRoute) {
-    return <AdminPortal onNavigateHome={() => navigateTo('/')} />;
+    pageContent = <AdminPortal onNavigateHome={() => navigateTo('/')} />;
   }
-
   // 2. Legal & Compliance Pages
-  if (isLegalRoute) {
-    return (
+  else if (isLegalRoute) {
+    pageContent = (
       <LegalLayout
         currentRoute={currentPath as LegalRoute}
         onNavigate={navigateTo}
       />
     );
   }
-
   // 3. 404 Not Found Page
-  if (isNotFound) {
-    return <NotFound onNavigateHome={() => navigateTo('/')} />;
+  else if (isNotFound) {
+    pageContent = <NotFound onNavigateHome={() => navigateTo('/')} />;
+  }
+  // 4. Public Architecture Website
+  else {
+    pageContent = (
+      <div className="app">
+        {isLoading && <Loader onComplete={handleLoaderComplete} />}
+        <Navigation activeSection={activeSection} visible={!isLoading} />
+        <main>
+          <Hero />
+          <Studio />
+          <Services />
+          <Projects />
+          <Process />
+          <Contact />
+        </main>
+        <Footer
+          onNavigate={navigateTo}
+          onNavigateAdmin={() => navigateTo('/admin')}
+        />
+      </div>
+    );
   }
 
-  // 4. Public Architecture Website
   return (
-    <div className="app">
-      {isLoading && <Loader onComplete={handleLoaderComplete} />}
-      <Navigation activeSection={activeSection} visible={!isLoading} />
-      <main>
-        <Hero />
-        <Studio />
-        <Services />
-        <Projects />
-        <Process />
-        <Contact />
-      </main>
-      <Footer
-        onNavigate={navigateTo}
-        onNavigateAdmin={() => navigateTo('/admin')}
-      />
-    </div>
+    <>
+      {pageContent}
+      {/* Vercel Web Analytics */}
+      <Analytics />
+    </>
   );
 }
 
