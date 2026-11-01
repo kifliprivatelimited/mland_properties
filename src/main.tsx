@@ -1,10 +1,21 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './styles/global.css'
-import App from './App'
+import { StrictMode } from 'react';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import './styles/global.css';
+import App from './App';
 
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-)
+const container = document.getElementById('root')!;
+
+if (container && container.hasChildNodes()) {
+  hydrateRoot(
+    container,
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+} else if (container) {
+  createRoot(container).render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+}

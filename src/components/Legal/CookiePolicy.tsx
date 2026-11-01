@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { updatePageSeo } from '../../utils/seo';
+import { updatePageSeo, ROUTES_SEO } from '../../utils/seo';
 import { ShieldCheck, Sliders, CheckCircle } from 'lucide-react';
 import StorageInspectorModal from './StorageInspectorModal';
 
@@ -7,13 +7,7 @@ export default function CookiePolicy() {
   const [inspectorOpen, setInspectorOpen] = useState(false);
 
   useEffect(() => {
-    updatePageSeo({
-      title: 'Cookie Policy | MLAND Properties',
-      description:
-        'Cookie Policy for MLAND Properties. Transparent disclosure regarding cookies, local storage, and technical web identifiers used on our architecture studio website.',
-      canonicalPath: '/cookie-policy',
-      robots: 'index, follow',
-    });
+    updatePageSeo(ROUTES_SEO['/cookie-policy']);
   }, []);
 
   return (

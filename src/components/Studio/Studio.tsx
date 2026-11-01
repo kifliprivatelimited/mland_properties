@@ -131,6 +131,9 @@ function StudioImageCard() {
             alt="MLAND Properties architecture studio — sunlit workspace with oak drafting tables, architectural models, material samples, and an indoor tree"
             className="studio__image"
             loading="lazy"
+            decoding="async"
+            width={1200}
+            height={900}
           />
 
           {/* Glass caption panel — elevated translateZ for depth during tilt */}

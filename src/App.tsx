@@ -11,7 +11,8 @@ import Contact from './components/Contact/Contact';
 import Footer from './components/Footer/Footer';
 import AdminPortal from './components/Admin/AdminPortal';
 import LegalLayout, { type LegalRoute } from './components/Legal/LegalLayout';
-import { updatePageSeo } from './utils/seo';
+import NotFound from './components/NotFound/NotFound';
+import { updatePageSeo, ROUTES_SEO } from './utils/seo';
 import './App.css';
 
 const LEGAL_ROUTES: LegalRoute[] = [
@@ -21,20 +22,31 @@ const LEGAL_ROUTES: LegalRoute[] = [
   '/disclaimer',
 ];
 
-function App() {
+interface AppProps {
+  initialPath?: string;
+  initialLoading?: boolean;
+}
+
+function App({ initialPath, initialLoading }: AppProps) {
   const [currentPath, setCurrentPath] = useState(
-    typeof window !== 'undefined' ? window.location.pathname : '/'
+    initialPath || (typeof window !== 'undefined' ? window.location.pathname : '/')
   );
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(
+    initialLoading !== undefined ? initialLoading : typeof window !== 'undefined'
+  );
   const [activeSection, setActiveSection] = useState('');
 
   const isAdminRoute = currentPath.startsWith('/admin');
   const isLegalRoute = LEGAL_ROUTES.includes(currentPath as LegalRoute);
+  const isHomeRoute = currentPath === '/' || currentPath === '';
+  const isNotFound = !isAdminRoute && !isLegalRoute && !isHomeRoute;
 
   const navigateTo = useCallback((path: string) => {
-    window.history.pushState({}, '', path);
-    setCurrentPath(path);
-    window.scrollTo(0, 0);
+    if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', path);
+      setCurrentPath(path);
+      window.scrollTo(0, 0);
+    }
   }, []);
 
   useEffect(() => {
@@ -47,16 +59,10 @@ function App() {
 
   // Update canonical SEO for public home page
   useEffect(() => {
-    if (!isAdminRoute && !isLegalRoute) {
-      updatePageSeo({
-        title: 'MLAND Properties — Architecture, Construction & Interior Design',
-        description:
-          'MLAND Properties — Contemporary architecture, precision construction, and refined interiors delivered by a single integrated team in Istanbul.',
-        canonicalPath: '/',
-        robots: 'index, follow',
-      });
+    if (isHomeRoute) {
+      updatePageSeo(ROUTES_SEO['/']);
     }
-  }, [isAdminRoute, isLegalRoute]);
+  }, [isHomeRoute]);
 
   const handleLoaderComplete = useCallback(() => {
     setIsLoading(false);
@@ -64,7 +70,7 @@ function App() {
 
   // Initialize Lenis smooth scroll on public site only
   useEffect(() => {
-    if (isAdminRoute || isLegalRoute) return;
+    if (isAdminRoute || isLegalRoute || isNotFound) return;
 
     const prefersReducedMotion = typeof window !== 'undefined'
       ? window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -89,10 +95,10 @@ function App() {
       cancelAnimationFrame(rafId);
       lenis.destroy();
     };
-  }, [isAdminRoute, isLegalRoute]);
+  }, [isAdminRoute, isLegalRoute, isNotFound]);
 
   useEffect(() => {
-    if (isAdminRoute || isLegalRoute) return;
+    if (isAdminRoute || isLegalRoute || isNotFound) return;
 
     const sections = ['studio', 'services', 'projects', 'process', 'contact'];
     const observers: IntersectionObserver[] = [];
@@ -113,7 +119,7 @@ function App() {
     });
 
     return () => observers.forEach((o) => o.disconnect());
-  }, [isLoading, isAdminRoute, isLegalRoute]);
+  }, [isLoading, isAdminRoute, isLegalRoute, isNotFound]);
 
   // 1. Admin Portal
   if (isAdminRoute) {
@@ -130,7 +136,12 @@ function App() {
     );
   }
 
-  // 3. Public Architecture Website
+  // 3. 404 Not Found Page
+  if (isNotFound) {
+    return <NotFound onNavigateHome={() => navigateTo('/')} />;
+  }
+
+  // 4. Public Architecture Website
   return (
     <div className="app">
       {isLoading && <Loader onComplete={handleLoaderComplete} />}

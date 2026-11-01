@@ -1,15 +1,9 @@
 import { useEffect } from 'react';
-import { updatePageSeo } from '../../utils/seo';
+import { updatePageSeo, ROUTES_SEO } from '../../utils/seo';
 
 export default function PrivacyPolicy() {
   useEffect(() => {
-    updatePageSeo({
-      title: 'Privacy Policy | MLAND Properties',
-      description:
-        'Privacy Policy for MLAND Properties. Understand how we collect, handle, store, and protect client enquiries and personal data in accordance with the Digital Personal Data Protection Act, 2023.',
-      canonicalPath: '/privacy-policy',
-      robots: 'index, follow',
-    });
+    updatePageSeo(ROUTES_SEO['/privacy-policy']);
   }, []);
 
   return (

@@ -171,6 +171,9 @@ export default function Hero() {
       ref={containerRef}
       aria-label="MLAND Properties Architectural Presentation"
     >
+      <h1 className="sr-only">
+        MLAND Properties — Contemporary Architecture, Precision Construction &amp; Refined Interiors in Istanbul
+      </h1>
       <div className="hero__sticky">
         {!webGLFailed && isClient && !prefersReducedMotion ? (
           <>
@@ -237,7 +240,7 @@ export default function Hero() {
               <span className="hero__fallback-subtitle">
                 DESIGN · ARCHITECTURE · CONSTRUCTION
               </span>
-              <h1 className="hero__fallback-title">MLAND PROPERTIES</h1>
+              <h2 className="hero__fallback-title">MLAND PROPERTIES</h2>
               <p className="hero__fallback-desc">
                 Contemporary architecture, precision construction, and refined interiors — delivered
                 by a single integrated team.

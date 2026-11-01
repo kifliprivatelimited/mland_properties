@@ -110,6 +110,9 @@ function ProjectCard({ project }: { project: (typeof PROJECTS)[number] }) {
           alt={project.alt}
           className="projects__item-img"
           loading="lazy"
+          decoding="async"
+          width={project.layout === 'wide' ? 1200 : 800}
+          height={project.layout === 'wide' ? 750 : 1000}
         />
 
         {/* Bottom overlay — category + year */}

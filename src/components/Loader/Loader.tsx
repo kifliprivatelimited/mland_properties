@@ -66,10 +66,10 @@ export default function Loader({ onComplete }: LoaderProps) {
       aria-label="MLAND Properties architectural presentation loading"
     >
       <div className="intro-overlay__center">
-        <h1 className="intro-overlay__brand">
+        <div className="intro-overlay__brand">
           <span className="intro-overlay__word">MLAND</span>{' '}
           <span className="intro-overlay__word">PROPERTIES</span>
-        </h1>
+        </div>
         <p className="intro-overlay__tagline">
           ARCHITECTURE · CONSTRUCTION · INTERIORS
         </p>

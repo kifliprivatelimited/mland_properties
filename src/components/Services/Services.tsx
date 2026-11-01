@@ -105,6 +105,9 @@ function ServiceCard({
           alt={service.alt}
           className="services__card-img"
           loading="lazy"
+          decoding="async"
+          width={800}
+          height={600}
         />
         {/* Hover darkening overlay */}
         <div className="services__card-overlay" />

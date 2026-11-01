@@ -1,15 +1,9 @@
 import { useEffect } from 'react';
-import { updatePageSeo } from '../../utils/seo';
+import { updatePageSeo, ROUTES_SEO } from '../../utils/seo';
 
 export default function Disclaimer() {
   useEffect(() => {
-    updatePageSeo({
-      title: 'Disclaimer | MLAND Properties',
-      description:
-        'Professional legal and architectural disclaimer for MLAND Properties. Clarifications on conceptual drawings, preliminary estimates, site walkthroughs, and statutory approvals in India.',
-      canonicalPath: '/disclaimer',
-      robots: 'index, follow',
-    });
+    updatePageSeo(ROUTES_SEO['/disclaimer']);
   }, []);
 
   return (

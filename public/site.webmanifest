@@ -1,0 +1,27 @@
+{
+  "name": "MLAND Properties",
+  "short_name": "MLAND",
+  "description": "Contemporary architecture, precision construction, and refined interiors delivered by a single integrated team in Istanbul.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#211F1D",
+  "theme_color": "#F7F3ED",
+  "icons": [
+    {
+      "src": "/favicon-48x48.png",
+      "sizes": "48x48",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
+

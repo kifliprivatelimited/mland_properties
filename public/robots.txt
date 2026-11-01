@@ -1,10 +1,10 @@
-# MLAND Properties - robots.txt
+# MLAND Properties — robots.txt
 # Canonical Domain: https://www.mlandproperties.com
 
 User-agent: *
 Allow: /
 
-# Exclude administrative and private endpoints
+# Private administrative studio portal & API endpoints
 Disallow: /admin
 Disallow: /admin/
 Disallow: /api/

@@ -1,15 +1,9 @@
 import { useEffect } from 'react';
-import { updatePageSeo } from '../../utils/seo';
+import { updatePageSeo, ROUTES_SEO } from '../../utils/seo';
 
 export default function TermsConditions() {
   useEffect(() => {
-    updatePageSeo({
-      title: 'Terms & Conditions | MLAND Properties',
-      description:
-        'Terms & Conditions governing the use of the MLAND Properties website and preliminary architectural, construction, and interior design communications.',
-      canonicalPath: '/terms-and-conditions',
-      robots: 'index, follow',
-    });
+    updatePageSeo(ROUTES_SEO['/terms-and-conditions']);
   }, []);
 
   return (

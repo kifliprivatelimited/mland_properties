@@ -1,7 +1,20 @@
 {
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "mlandproperties.com"
+        }
+      ],
+      "destination": "https://www.mlandproperties.com/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!api/|admin|privacy-policy|terms-and-conditions|cookie-policy|disclaimer).*)",
       "destination": "/index.html"
     }
   ],
@@ -16,6 +29,10 @@
         {
           "key": "Content-Disposition",
           "value": "inline"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400, stale-while-revalidate=43200"
         }
       ]
     },
@@ -25,6 +42,19 @@
         {
           "key": "Content-Type",
           "value": "text/plain; charset=utf-8"
+        },
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    },
+    {
+      "source": "/site.webmanifest",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/manifest+json; charset=utf-8"
         }
       ]
     }
