@@ -1,32 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <!-- Homepage & Core Architectural Portfolio -->
   <url>
     <loc>https://www.mlandproperties.com/</loc>
-    <lastmod>2026-10-30</lastmod>
+    <lastmod>2026-11-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://www.mlandproperties.com/images/villa-travertine-sunset.jpg</image:loc>
+      <image:title>Villa Travertine — Residence &amp; Landscape</image:title>
+      <image:caption>Contemporary stone residence with infinity pool overlooking the Mediterranean sea at sunset in Marbella</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mlandproperties.com/images/hotel-lumen-lobby.jpg</image:loc>
+      <image:title>Hôtel Lumen — Hospitality Architecture</image:title>
+      <image:caption>Soaring double-height grand lobby with bookmatched Italian marble and ribbed oak panels in Istanbul</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mlandproperties.com/images/villa-exterior.jpg</image:loc>
+      <image:title>Villa Fiorentina — Private Residence</image:title>
+      <image:caption>Modern stone residence with courtyard pool and mature olive trees in Florence</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mlandproperties.com/images/commercial-building.jpg</image:loc>
+      <image:title>Atrium Works — Commercial Headquarters</image:title>
+      <image:caption>Commercial headquarters with warm stone and bronze facade in Istanbul</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mlandproperties.com/images/interior-design.jpg</image:loc>
+      <image:title>Marble House — Interior Architecture</image:title>
+      <image:caption>Luxury interior with travertine columns, oak joinery and bronze fixtures in Doha</image:caption>
+    </image:image>
+    <image:image>
+      <image:loc>https://www.mlandproperties.com/images/renovation-building.jpg</image:loc>
+      <image:title>Pavilion Oak — Guest Pavilion</image:title>
+      <image:caption>Timber and limestone guest pavilion nestled in lavender fields in Provence</image:caption>
+    </image:image>
   </url>
+
+  <!-- Legal & Compliance Documentation -->
   <url>
     <loc>https://www.mlandproperties.com/privacy-policy</loc>
-    <lastmod>2026-10-31</lastmod>
+    <lastmod>2026-11-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.mlandproperties.com/terms-and-conditions</loc>
-    <lastmod>2026-10-31</lastmod>
+    <lastmod>2026-11-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.mlandproperties.com/cookie-policy</loc>
-    <lastmod>2026-10-31</lastmod>
+    <lastmod>2026-11-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
     <loc>https://www.mlandproperties.com/disclaimer</loc>
-    <lastmod>2026-10-31</lastmod>
+    <lastmod>2026-11-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
