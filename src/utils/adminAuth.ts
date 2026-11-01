@@ -39,43 +39,19 @@ export function clearSession() {
 }
 
 export async function loginAdmin(email: string, password: string): Promise<AdminSession> {
-  // First try the backend API
-  try {
-    const res = await fetch('/api/admin/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-    if (res.ok && data.success && data.session) {
-      const session: AdminSession = {
-        token: data.session.access_token,
-        user: {
-          id: data.session.user.id,
-          email: data.session.user.email,
-        },
-      };
-      saveSession(session);
-      return session;
-    } else if (data?.error) {
-      throw new Error(data.error);
-    }
-  } catch (err: unknown) {
-    if (err instanceof Error && err.message !== 'Failed to fetch') {
-      throw err;
-    }
-  }
-
-  // Fallback to direct client-side Supabase if server API was unavailable
+  // 1. Direct client-side Supabase authentication (Production & standard)
   if (supabase) {
     const { data, error } = await supabase.auth.signInWithPassword({
-      email,
+      email: email.trim(),
       password,
     });
 
-    if (error || !data.session) {
-      throw new Error(error?.message || 'Invalid email or password.');
+    if (error) {
+      throw new Error(error.message || 'Invalid email or password.');
+    }
+
+    if (!data.session || !data.user) {
+      throw new Error('Authentication succeeded but no active session was returned.');
     }
 
     const session: AdminSession = {
@@ -89,36 +65,76 @@ export async function loginAdmin(email: string, password: string): Promise<Admin
     return session;
   }
 
-  throw new Error('Authentication service unavailable.');
+  // 2. Local dev server API fallback (used only if Supabase client is uninitialized)
+  try {
+    const res = await fetch('/api/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), password }),
+    });
+
+    const isJson = res.headers.get('content-type')?.includes('application/json');
+    if (res.ok && isJson) {
+      const data = await res.json();
+      if (data.success && data.session) {
+        const session: AdminSession = {
+          token: data.session.access_token,
+          user: {
+            id: data.session.user.id,
+            email: data.session.user.email,
+          },
+        };
+        saveSession(session);
+        return session;
+      } else if (data?.error) {
+        throw new Error(data.error);
+      }
+    } else if (isJson) {
+      const data = await res.json();
+      throw new Error(data?.error || 'Invalid credentials.');
+    }
+  } catch (err: unknown) {
+    if (err instanceof Error && err.message !== 'Failed to fetch') {
+      throw err;
+    }
+  }
+
+  throw new Error('Authentication service unavailable. Please check your credentials.');
 }
 
 export async function verifyCurrentSession(): Promise<AdminUser | null> {
   const session = getStoredSession();
   if (!session?.token) return null;
 
+  // 1. Direct Supabase session verification
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.auth.getUser(session.token);
+      if (!error && data?.user) {
+        return {
+          id: data.user.id,
+          email: data.user.email || session.user.email,
+        };
+      }
+    } catch {
+      // Token invalid or expired
+    }
+  }
+
+  // 2. Dev server API fallback
   try {
     const res = await fetch('/api/admin/session', {
       headers: { Authorization: `Bearer ${session.token}` },
     });
-    if (res.ok) {
+    const isJson = res.headers.get('content-type')?.includes('application/json');
+    if (res.ok && isJson) {
       const data = await res.json();
       if (data.authenticated && data.user) {
         return data.user;
       }
     }
   } catch {
-    // API failed, fallback to checking Supabase client
-  }
-
-  if (supabase) {
-    try {
-      const { data } = await supabase.auth.getUser(session.token);
-      if (data?.user) {
-        return { id: data.user.id, email: data.user.email || '' };
-      }
-    } catch {
-      // invalid token
-    }
+    // API failed
   }
 
   clearSession();
@@ -126,7 +142,6 @@ export async function verifyCurrentSession(): Promise<AdminUser | null> {
 }
 
 export async function logoutAdmin(): Promise<void> {
-  const session = getStoredSession();
   clearSession();
 
   if (supabase) {
@@ -137,7 +152,5 @@ export async function logoutAdmin(): Promise<void> {
     }
   }
 
-  // Also notify listeners
   window.dispatchEvent(new Event('mland_admin_auth_changed'));
 }
-

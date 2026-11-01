@@ -17,7 +17,35 @@ import {
 } from 'lucide-react';
 import type { AdminUser, AdminSession } from '../../utils/adminAuth';
 import type { Enquiry, EnquiryStatus } from '../../types/admin';
+import { supabase } from '../../utils/supabase';
 import AdminDetailModal from './AdminDetailModal';
+
+const META_REGEX = /\n\n<!--metadata:(.*?)-->$/s;
+
+function parseScope(rawScope: string) {
+  if (!rawScope) return { cleanScope: '', status: 'new', notes: '' };
+  const match = rawScope.match(META_REGEX);
+  if (match) {
+    try {
+      const meta = JSON.parse(match[1]);
+      const validStatuses = ['new', 'read', 'replied', 'archived'];
+      const status = validStatuses.includes(meta.status) ? meta.status : 'new';
+      return {
+        cleanScope: rawScope.replace(META_REGEX, '').trim(),
+        status,
+        notes: meta.notes || '',
+      };
+    } catch {
+      // ignore
+    }
+  }
+  return { cleanScope: rawScope.trim(), status: 'new', notes: '' };
+}
+
+function formatScope(cleanScope: string, status: string, notes?: string) {
+  const meta = { status, notes, updated_at: new Date().toISOString() };
+  return `${cleanScope.trim()}\n\n<!--metadata:${JSON.stringify(meta)}-->`;
+}
 
 interface AdminDashboardProps {
   user: AdminUser;
@@ -40,16 +68,50 @@ export default function AdminDashboard({
   const [sortOrder, setSortOrder] = useState<'desc' | 'asc'>('desc');
   const [selectedEnquiry, setSelectedEnquiry] = useState<Enquiry | null>(null);
 
-  // Fetch enquiries from API
+  // Fetch enquiries: direct Supabase query with local API fallback
   const fetchEnquiries = useCallback(async (isRefresh = false) => {
     if (isRefresh) setRefreshing(true);
     else setLoading(true);
 
+    // 1. Direct client-side Supabase query (production & standard)
+    if (supabase) {
+      try {
+        const { data, error } = await supabase
+          .from('contact_messages')
+          .select('*')
+          .order('submitted_at', { ascending: false });
+
+        if (!error && Array.isArray(data)) {
+          const parsed: Enquiry[] = data.map((row) => {
+            const { cleanScope, status, notes } = parseScope(row.scope || '');
+            return {
+              id: row.id,
+              name: row.name || 'Anonymous',
+              email: row.email || '',
+              project_location: row.project_location || '',
+              scope: cleanScope,
+              status: (status as EnquiryStatus) || 'new',
+              submitted_at: row.submitted_at || new Date().toISOString(),
+              notes: notes || '',
+            };
+          });
+          setEnquiries(parsed);
+          setLoading(false);
+          setRefreshing(false);
+          return;
+        }
+      } catch (err) {
+        console.warn('Direct Supabase fetch error, trying API fallback:', err);
+      }
+    }
+
+    // 2. Dev server fallback
     try {
       const res = await fetch('/api/admin/enquiries', {
         headers: { Authorization: `Bearer ${session.token}` },
       });
-      if (res.ok) {
+      const isJson = res.headers.get('content-type')?.includes('application/json');
+      if (res.ok && isJson) {
         const data = await res.json();
         if (data.enquiries) {
           setEnquiries(data.enquiries);
@@ -79,6 +141,22 @@ export default function AdminDashboard({
       setSelectedEnquiry((prev: Enquiry | null) => (prev ? { ...prev, status: newStatus } : null));
     }
 
+    // 1. Direct Supabase update
+    if (supabase) {
+      try {
+        const target = enquiries.find((e) => String(e.id) === String(id));
+        const updatedScope = formatScope(target?.scope || '', newStatus, target?.notes);
+        const { error } = await supabase
+          .from('contact_messages')
+          .update({ scope: updatedScope })
+          .eq('id', id);
+        if (!error) return;
+      } catch (err) {
+        console.warn('Supabase status update failed, trying API fallback:', err);
+      }
+    }
+
+    // 2. Dev server fallback
     try {
       await fetch(`/api/admin/enquiries/${id}/status`, {
         method: 'PATCH',
@@ -90,7 +168,6 @@ export default function AdminDashboard({
       });
     } catch (err) {
       console.error('Failed to update status on server:', err);
-      // Refresh on failure
       fetchEnquiries();
     }
   };
@@ -102,6 +179,20 @@ export default function AdminDashboard({
       setSelectedEnquiry(null);
     }
 
+    // 1. Direct Supabase delete
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('contact_messages')
+          .delete()
+          .eq('id', id);
+        if (!error) return;
+      } catch (err) {
+        console.warn('Supabase delete failed, trying API fallback:', err);
+      }
+    }
+
+    // 2. Dev server fallback
     try {
       await fetch(`/api/admin/enquiries/${id}`, {
         method: 'DELETE',
